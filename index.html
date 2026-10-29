@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JITUME LAB Register Book</title>
+<style>
+:root{--bg:#e4ebe2;--paper:#fffdf6;--ink:#1d2a1f;--dim:#5b6b5e;--line:#c9d6c5;--green:#0f6b3a;--green2:#0b4f2b;--red:#b3261e;--btn:#e9f1e6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1510;--paper:#16211a;--ink:#e8f1ea;--dim:#9db3a2;--line:#2b3d30;--green:#3fbf7a;--green2:#2c9a5e;--red:#ff8a80;--btn:#1f2e24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1510;--paper:#16211a;--ink:#e8f1ea;--dim:#9db3a2;--line:#2b3d30;--green:#3fbf7a;--green2:#2c9a5e;--red:#ff8a80;--btn:#1f2e24;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;padding:14px}
+.book{max-width:1000px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-left:14px solid var(--green);border-radius:6px 12px 12px 6px;box-shadow:0 6px 22px rgba(0,0,0,.15);padding:18px 20px 24px}
+header{text-align:center;border-bottom:3px double var(--green);padding-bottom:10px;margin-bottom:14px}
+h1{margin:0;font-size:1.7rem;letter-spacing:.14em;color:var(--green)}
+header p{margin:4px 0 0;color:var(--dim);font-family:"Trebuchet MS",system-ui,sans-serif;font-size:.9rem;letter-spacing:.08em;text-transform:uppercase}
+.ui{font-family:"Trebuchet MS",system-ui,sans-serif}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:end;background:var(--btn);padding:12px;border-radius:8px;margin-bottom:14px}
+label{display:flex;flex-direction:column;font-size:.78rem;color:var(--dim);gap:3px;font-weight:700}
+input,select{font:inherit;font-size:.95rem;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--green);outline-offset:1px}
+button{font:inherit;font-weight:700;font-size:.9rem;padding:9px 14px;border:0;border-radius:6px;background:var(--green);color:#fff;cursor:pointer}
+button.alt{background:var(--btn);color:var(--ink);border:1px solid var(--line)}
+button.small{padding:5px 9px;font-size:.8rem}
+button.del{background:transparent;color:var(--red);border:1px solid var(--red)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin-bottom:10px}
+.bar .grow{flex:1;min-width:160px}
+.stats{display:flex;gap:16px;color:var(--dim);font-size:.85rem;margin:6px 0 10px}
+.stats b{color:var(--ink)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:.9rem}
+th{background:var(--green);color:#fff;text-align:left;padding:8px;font-size:.78rem;letter-spacing:.05em;text-transform:uppercase}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--btn) 55%,transparent)}
+.empty{text-align:center;color:var(--dim);padding:24px}
+.in{color:var(--green);font-weight:700}
+#csvbox{width:100%;height:110px;margin-top:8px;display:none;font-family:monospace;font-size:.8rem}
+.note{color:var(--dim);font-size:.78rem;margin-top:12px}
+.sign{display:none}
+@media print{body{background:#fff;padding:0}.book{border:0;box-shadow:none;max-width:none;padding:0}form,.bar,.noprint,.note,#csvbox{display:none!important}.sign{display:block;margin-top:30px}th{background:#ddd!important;color:#000!important;-webkit-print-color-adjust:exact}td,th{border:1px solid #999}.tw{overflow:visible;border:0}table{min-width:0;font-size:11px}}
+</style></head><body>
+<div class="book">
+<header><h1>JITUME LAB</h1><p class="ui">Visitors &amp; Attendance Register</p></header>
+
+<form id="f" class="ui" autocomplete="off">
+<label>Full name<input id="name" required placeholder="e.g. Amina Wanjiru"></label>
+<label>ID / Passport no.<input id="idno" required inputmode="numeric" placeholder="ID number"></label>
+<label>Phone<input id="phone" type="tel" inputmode="tel" placeholder="07xx xxx xxx"></label>
+<label>Purpose of visit<select id="purpose"><option>Digital Literacy</option><option>Computer Packages</option><option>TVET Class</option></select></label>
+<label>Station / PC no.<input id="station" placeholder="e.g. 4"></label>
+<button type="submit">Sign in</button>
+</form>
+
+<div class="bar ui noprint">
+<label>Date<input id="date" type="date"></label>
+<label class="grow">Search<input id="q" type="search" placeholder="Name, ID, phone or purpose"></label>
+<button class="alt" id="all" type="button">Show all dates</button>
+<button class="alt" id="csv" type="button">Export CSV</button>
+<button id="print" type="button">Print page</button>
+</div>
+<textarea id="csvbox" readonly aria-label="CSV export"></textarea>
+<div class="stats ui" id="stats"></div>
+
+<div class="tw"><table>
+<thead><tr><th>No.</th><th>Date</th><th>Name</th><th>ID / Passport</th><th>Phone</th><th>Purpose</th><th>PC</th><th>Time in</th><th>Time out</th><th class="noprint"></th></tr></thead>
+<tbody id="rows"></tbody></table></div>
+
+<div class="sign ui">Checked by: ______________________ &nbsp;&nbsp; Signature: ______________________ &nbsp;&nbsp; Date: ______________</div>
+<p class="note ui noprint">Entries are saved in this browser on this device. Use Export CSV to back them up regularly.</p>
+</div>
+<script>
+const KEY='jitume-register-v1',$=i=>document.getElementById(i);
+let data=[],showAll=false,pend=null;
+try{data=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){data=[]}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}};
+const pad=n=>String(n).padStart(2,'0');
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const now=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+$('date').value=today();
+function view(){const q=$('q').value.trim().toLowerCase(),d=$('date').value;
+ return data.filter(e=>(showAll||!d||e.date===d)&&(!q||[e.name,e.idno,e.phone,e.purpose].join(' ').toLowerCase().includes(q)))}
+function render(){const v=view();
+ $('rows').innerHTML=v.length?v.map((e,i)=>`<tr><td>${i+1}</td><td>${e.date}</td><td>${esc(e.name)}</td><td>${esc(e.idno)}</td><td>${esc(e.phone||'')}</td><td>${esc(e.purpose)}</td><td>${esc(e.station||'')}</td><td>${e.tin}</td><td>${e.tout?e.tout:`<span class="in">Inside</span>`}</td><td class="noprint ui" style="white-space:nowrap">${e.tout?'':`<button class="small" data-o="${e.id}">Sign out</button> `}<button class="small del" data-x="${e.id}">${pend===e.id?'Confirm?':'Delete'}</button></td></tr>`).join(''):`<tr><td colspan="10" class="empty">No entries ${showAll?'yet':'for this date'}.</td></tr>`;
+ $('stats').innerHTML=`<span>Visitors: <b>${v.length}</b></span><span>Currently inside: <b>${v.filter(e=>!e.tout).length}</b></span>`;
+ $('all').textContent=showAll?'Show selected date':'Show all dates'}
+$('f').addEventListener('submit',e=>{e.preventDefault();
+ data.push({id:Date.now()+Math.random().toString(36).slice(2,6),date:today(),name:$('name').value.trim(),idno:$('idno').value.trim(),phone:$('phone').value.trim(),purpose:$('purpose').value,station:$('station').value.trim(),tin:now(),tout:''});
+ save();$('date').value=today();showAll=false;e.target.reset();$('name').focus();render()});
+$('rows').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.o){const r=data.find(x=>x.id===b.dataset.o);if(r){r.tout=now();save()}}
+ if(b.dataset.x){if(pend===b.dataset.x){data=data.filter(x=>x.id!==pend);pend=null;save()}else{pend=b.dataset.x;setTimeout(()=>{pend=null;render()},3000)}}
+ render()});
+$('date').addEventListener('input',()=>{showAll=false;render()});$('q').addEventListener('input',render);
+$('all').addEventListener('click',()=>{showAll=!showAll;render()});
+$('print').addEventListener('click',()=>{try{window.print()}catch(e){}});
+$('csv').addEventListener('click',()=>{const h=['No','Date','Name','ID/Passport','Phone','Purpose','PC','Time in','Time out'];
+ const q=s=>'"'+String(s).replace(/"/g,'""')+'"';
+ const t=[h.map(q).join(',')].concat(view().map((e,i)=>[i+1,e.date,e.name,e.idno,e.phone,e.purpose,e.station,e.tin,e.tout].map(q).join(','))).join('\n');
+ const box=$('csvbox');box.style.display='block';box.value=t;box.select();
+ try{navigator.clipboard.writeText(t)}catch(e){}});
+render();
+</script></body></html>
